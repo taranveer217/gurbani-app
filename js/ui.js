@@ -569,7 +569,26 @@ class UIController {
         resultsContainer.innerHTML = '';
         
         const isGurmukhi = /[\u0A00-\u0A7F]/.test(query);
-        let searchType = isGurmukhi ? 2 : 1; 
+        let searchType = 1; 
+
+        if (isGurmukhi) {
+            // If the query has spaces or Gurmukhi matras (vowels), it's likely a full word search
+            const hasMatras = /[\u0A3E-\u0A4C\u0A70\u0A71]/.test(query);
+            if (hasMatras || query.includes(' ')) {
+                searchType = 3; // FullWord (Gurmukhi)
+            } else {
+                searchType = 1; // FirstLetter from start (more accurate than anywhere)
+            }
+        } else {
+            // Check if it looks like an English translation sentence
+            const words = query.trim().split(/\s+/);
+            const isFullEnglish = words.length > 1 && words.every(w => w.length > 2);
+            if (isFullEnglish) {
+                searchType = 4; // English Translation
+            } else {
+                searchType = 1; // FirstLetter from start (default for Romanized)
+            }
+        }
 
         try {
             const data = await window.API.search(query, searchType);
@@ -590,17 +609,14 @@ class UIController {
                     const source = item.shabad.shabadinfo.source ? item.shabad.shabadinfo.source.english : 'Gurbani';
                     
                     return `
-                    <li class="list-item" data-shabad-id="${item.shabad.shabadinfo.id}" style="display:flex; flex-direction:column; align-items:flex-start;">
+                    <li class="list-item search-result-item" data-shabad-id="${item.shabad.shabadinfo.id}" style="display:flex; flex-direction:column; align-items:flex-start; cursor:pointer;">
                         <p class="gurmukhi-text" style="font-size:1.3rem; text-align:left; color:var(--text-gurmukhi); margin-bottom: 2px;">${line.gurmukhi.unicode}</p>
                         <p class="roman-text" style="font-size:0.95rem; text-align:left; color:var(--text-primary); margin-bottom: 4px;">${line.transliteration.english.text}</p>
-                        <div class="shabad-result-meta">
+                        <div class="shabad-result-meta" style="margin-top:0.25rem;">
                             <span>Ang ${pageno}</span>
                             <span>${raag}</span>
                             <span>${writer}</span>
                             <span>${source}</span>
-                        </div>
-                        <div style="margin-top:0.75rem; width:100%; display:flex; gap:0.5rem;">
-                            <button class="secondary-btn read-full-btn" style="flex:1; padding:0.5rem; font-size:0.85rem;"><i data-lucide="book-open" style="width:16px;height:16px;vertical-align:middle;"></i> Read Full Shabad</button>
                         </div>
                     </li>`;
                 }).join('');
@@ -608,10 +624,10 @@ class UIController {
                 if (window.lucide) window.lucide.createIcons();
 
                 document.querySelectorAll('li[data-shabad-id]').forEach(li => {
-                    li.querySelector('.read-full-btn').addEventListener('click', (e) => {
+                    li.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const id = li.getAttribute('data-shabad-id');
-                        const sourceTitle = 'Verified Source: ' + (li.querySelector('.shabad-result-meta span:last-child').textContent || 'Gurbani');
+                        const sourceTitle = li.querySelector('.shabad-result-meta span:last-child').textContent || 'Gurbani';
                         this.openBaniReader(id, sourceTitle, true);
                     });
                 });
