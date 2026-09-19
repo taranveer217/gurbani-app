@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gurbani Nitnem</title>
+    <meta name="description" content="A beautiful, traditional Sikh Gurbani & Nitnem mobile app.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Inter for Roman UI, Mukta Mahee for Gurmukhi -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Mukta+Mahee:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-traditional font-size-medium" data-lang-gurmukhi="true" data-lang-punjabi="true" data-lang-english="true" data-lang-roman="false">
+    
+    <div id="app">
+        <!-- Premium 3-Column Header -->
+        <header id="app-header">
+            <!-- Subtle Background Pattern -->
+            <div class="header-pattern"></div>
+            
+            <div class="header-container">
+                <!-- LEFT: Identity -->
+                <div class="header-col header-left">
+                    <div class="brand-group">
+                        <div class="khanda-wrapper">
+                            <svg class="khanda-icon" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Authentic Khanda Path -->
+                                <path d="M415.81 66c-6.37-3.5-14.37-2.33-19.36 3.02a15.974 15.974 0 0 0-1.91 19.52c16.49 26.16 25.2 56.39 25.2 87.41-.19 53.25-26.77 102.69-71.27 132.41l-76.63 53.35v-20.1l44.05-36.09c3.92-4.2 5-10.09 2.81-15.28L310.85 273c33.84-19.26 56.94-55.25 56.94-96.99 0-40.79-22.02-76.13-54.59-95.71l5.22-11.44c2.34-5.53.93-11.83-3.57-16.04L255.86 0l-58.99 52.81c-4.5 4.21-5.9 10.51-3.57 16.04l5.22 11.44c-32.57 19.58-54.59 54.93-54.59 95.72 0 41.75 23.09 77.73 56.94 96.99l-7.85 17.24c-2.19 5.18-1.1 11.07 2.81 15.28l44.05 36.09v19.9l-76.59-53.33C119.02 278.62 92.44 229.19 92.26 176c0-31.08 8.71-61.31 25.2-87.47 3.87-6.16 2.4-13.77-2.59-19.08-5-5.34-13.68-6.2-20.02-2.7C16.32 109.6-22.3 205.3 13.36 295.99c7.07 17.99 17.89 34.38 30.46 49.06l55.97 65.36c4.87 5.69 13.04 7.24 19.65 3.72l79.35-42.23L228 392.23l-47.08 32.78c-1.67-.37-3.23-1.01-5.01-1.01-13.25 0-23.99 10.74-23.99 24 0 13.25 10.74 24 23.99 24 12.1 0 21.69-9.11 23.33-20.76l40.63-28.28v29.95c-9.39 5.57-15.99 15.38-15.99 27.1 0 17.67 14.32 32 31.98 32s31.98-14.33 31.98-32c0-11.71-6.61-21.52-15.99-27.1v-30.15l40.91 28.48C314.41 462.89 324 472 336.09 472c13.25 0 23.99-10.75 23.99-24 0-13.26-10.74-24-23.99-24-1.78 0-3.34.64-5.01 1.01L284 392.23l29.21-20.34 79.35 42.23c6.61 3.52 14.78 1.97 19.65-3.71l52.51-61.31c18.87-22.02 34-47.5 41.25-75.59 21.62-83.66-16.45-167.27-90.16-207.51zm-95.99 110c0 22.3-11.49 41.92-28.83 53.38l-5.65-12.41c-8.75-24.52-8.75-51.04 0-75.56l7.83-17.18c16.07 11.65 26.65 30.45 26.65 51.77zm-127.93 0c0-21.32 10.58-40.12 26.66-51.76l7.83 17.18c8.75 24.52 8.75 51.03 0 75.56l-5.65 12.41c-17.34-11.46-28.84-31.09-28.84-53.39z"/>
+                            </svg>
+                        </div>
+                        <div class="brand-text">
+                            <h1 class="main-title">GURBANI NITNEM</h1>
+                            <span class="sub-title">CONNECT • LISTEN • LEARN • LIVE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CENTER: Time & Spirit -->
+                <div class="header-col header-center">
+                    <div class="mool-mantar">ੴ ਸਤਿਗੁਰ ਪ੍ਰਸਾਦਿ</div>
+                    <div class="time-display-container">
+                        <div id="live-clock-big" class="clock-big">00:00:00 PM</div>
+                        <div class="date-group">
+                            <div id="live-date-en" class="date-en-medium">Loading Date...</div>
+                            <div id="live-date-pa" class="date-pa-medium">...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Darbar Sahib & Actions -->
+                <div class="header-col header-right">
+                    <div class="header-right-inner">
+                        <button class="icon-btn search-trigger" aria-label="Search"><i data-lucide="search"></i></button>
+                        <div class="greeting-text">
+                            WAHEGURU JI KA KHALSA<br>
+                            WAHEGURU JI KI FATEH
+                        </div>
+                    </div>
+                    <!-- Subtle SVG Silhouette Background -->
+                    <div class="darbar-sahib-bg">
+                        <svg viewBox="0 0 100 40" preserveAspectRatio="none" fill="currentColor">
+                            <path d="M20,40 L20,25 C20,20 25,15 30,15 L35,15 C37,10 40,5 50,5 C60,5 63,10 65,15 L70,15 C75,15 80,20 80,25 L80,40 Z"/>
+                            <rect x="10" y="30" width="80" height="10"/>
+                            <path d="M45,5 C45,2 48,0 50,0 C52,0 55,2 55,5"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            
+            <!-- Home Screen -->
+            <section id="screen-home" class="screen active">
+
+                <!-- Hero Banner: Today's Hukamnama -->
+                <div class="hero-card card" id="hukamnama-card-morning">
+                    <div class="hero-badge">🌅 Amrit Vela Hukamnama</div>
+                    <h2 class="hero-title">Sri Darbar Sahib</h2>
+                    <p class="huk-date" id="huk-morning-date">Checking for updates...</p>
+                    <p class="huk-ang" id="huk-morning-ang" style="color:var(--accent-gold); font-weight:700; margin-top:0.25rem;"></p>
+                    
+                    <div class="hero-gurmukhi-container">
+                        <p id="huk-morning-gurmukhi" class="gurmukhi-text" style="font-size:1.4rem; color:var(--text-gurmukhi); line-height:1.8; margin:0; text-shadow:0 2px 4px rgba(0,0,0,0.05);"></p>
+                    </div>
+
+                    <button class="primary-btn hero-btn mt-1" id="read-morning-btn" disabled>📖 Read Full Hukamnama</button>
+                </div>
+
+                <div class="section-title mt-2">
+                    <h3 style="font-family:'Inter', sans-serif; font-size:1.1rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">Live Broadcasting</h3>
+                </div>
+                
+                <!-- Live Action Cards -->
+                <div class="grid-2-col" style="margin-bottom: 1.5rem;">
+                    <a href="https://www.youtube.com/@SGPCSriAmritsar/live" target="_blank" rel="noopener noreferrer" class="card action-card" id="watch-morning-btn">
+                        <div class="action-icon youtube">
+                            <i data-lucide="video" style="width:24px; height:24px;"></i>
+                        </div>
+                        <h4>Watch Live</h4>
+                        <p>SGPC YouTube</p>
+                    </a>
+
+                    <button class="card action-card" id="listen-evening-btn">
+                        <div class="action-icon audio">
+                            <i data-lucide="headphones" style="width:24px; height:24px;"></i>
+                        </div>
+                        <h4>Listen Audio</h4>
+                        <p>24/7 Gurbani</p>
+                    </button>
+                </div>
+
+                <div class="section-title">
+                    <h3>Continue Listening</h3>
+                </div>
+                <div class="card continue-card" id="continue-listening-card" style="display:none;">
+                    <div class="continue-info">
+                        <h4 id="continue-title">Japji Sahib</h4>
+                        <p id="continue-time">02:30 / 24:00</p>
+                    </div>
+                    <button class="icon-btn continue-play-btn"><i data-lucide="play-circle"></i></button>
+                </div>
+
+                <div class="section-title">
+                    <h3>Quick Nitnem</h3>
+                </div>
+                <div class="grid-2-col" id="quick-nitnem-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Nitnem Screen -->
+            <section id="screen-nitnem" class="screen">
+                <div class="section-title">
+                    <h2>Complete Nitnem</h2>
+                </div>
+                <ul class="fancy-list" id="nitnem-list">
+                    <!-- Populated by JS -->
+                </ul>
+            </section>
+
+            <!-- Library/Search Screen -->
+            <section id="screen-gurbani" class="screen">
+                <div class="section-title">
+                    <h2>Gurbani Search</h2>
+                </div>
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="gurbani-search-input" placeholder="ਗੁਰਬਾਣੀ ਖੋਜੋ...">
+                    <button class="icon-btn" id="clear-search-btn" style="display:none;" title="Clear"><i data-lucide="x"></i></button>
+                    <button class="icon-btn" id="keyboard-toggle-btn" title="Toggle Gurmukhi Keyboard"><i data-lucide="keyboard"></i></button>
+                </div>
+                
+                <div id="search-status" class="search-status"></div>
+                
+                <div id="search-front-page">
+                    <div id="search-history-container" class="mt-1" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <h3 style="font-size:1rem; font-weight:700;">Recent Searches</h3>
+                            <button id="clear-history-btn" style="background:none; border:none; color:var(--text-secondary); font-size:0.8rem; cursor:pointer;">Clear All</button>
+                        </div>
+                        <div id="history-chips" class="chips-container"></div>
+                    </div>
+
+                    <div id="favorites-container" class="mt-2" style="display:none;">
+                        <h3 style="font-size:1rem; font-weight:700; margin-bottom: 0.5rem;">Saved Shabads</h3>
+                        <ul class="fancy-list" id="saved-shabads-list"></ul>
+                    </div>
+                </div>
+
+                <ul class="fancy-list" id="gurbani-search-results">
+                    <!-- Search Results Populated Here -->
+                </ul>
+
+                <!-- Virtual Gurmukhi Keyboard -->
+                <div id="gurmukhi-keyboard" class="keyboard-container hidden">
+                    <div class="keyboard-header">
+                        <span style="font-family:'Mukta Mahee', sans-serif; font-weight:700;">Gurmukhi Keyboard</span>
+                        <button class="icon-btn" id="keyboard-close-btn"><i data-lucide="chevron-down"></i></button>
+                    </div>
+                    <div id="keyboard-keys" class="keyboard-keys">
+                        <!-- Keys populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Kirtan Screen -->
+            <section id="screen-kirtan" class="screen">
+                <div class="section-title">
+                    <h2 style="font-family:'Cinzel', serif; font-size:1.8rem; font-weight:800; color:var(--accent-dark);">Live Kirtan Radio</h2>
+                </div>
+                <div class="kirtan-grid" id="kirtan-list">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Profile / Settings Screen -->
+            <section id="screen-profile" class="screen">
+                <div class="section-title">
+                    <h2>Settings</h2>
+                </div>
+                
+                <div class="settings-card">
+                    <h3>Theme</h3>
+                    <div class="theme-selector">
+                        <button class="theme-btn active" data-theme="theme-traditional">Traditional</button>
+                        <button class="theme-btn" data-theme="theme-light">Light</button>
+                        <button class="theme-btn" data-theme="theme-dark">Dark</button>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Font Size</h3>
+                    <div class="font-size-selector">
+                        <button class="font-btn" data-size="font-size-small">A-</button>
+                        <button class="font-btn active" data-size="font-size-medium">A</button>
+                        <button class="font-btn" data-size="font-size-large">A+</button>
+                        <button class="font-btn" data-size="font-size-xlarge">A++</button>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Downloads & Offline</h3>
+                    <div class="settings-row">
+                        <span>Offline Gurbani Data</span>
+                        <button class="secondary-btn" id="download-data-btn">Download Cache</button>
+                    </div>
+                    <div class="settings-row mt-1">
+                        <span>Storage Used</span>
+                        <span id="storage-usage">Checking...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Full Screen Reader (Gutka View) -->
+            <section id="screen-reader" class="screen full-overlay">
+                <div class="reader-toolbar">
+                    <button class="icon-btn close-reader"><i data-lucide="arrow-left"></i></button>
+                    <h2 id="reader-title-bar" class="reader-title">Bani</h2>
+                    <div class="reader-actions">
+                        <button class="icon-btn" id="reader-favorite-btn" title="Favorite"><i data-lucide="heart"></i></button>
+                        <button class="icon-btn" id="reader-bookmark-btn" title="Bookmark"><i data-lucide="bookmark"></i></button>
+                        <button class="icon-btn" id="reader-share-btn" title="Share"><i data-lucide="share-2"></i></button>
+                        <button class="icon-btn" id="reader-settings-btn" title="Settings"><i data-lucide="sliders-horizontal"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Display Options Drawer -->
+                <div class="reader-settings-drawer" id="reader-display-options">
+                    <h4>Translations</h4>
+                    <label class="toggle-row"><input type="checkbox" id="toggle-gurmukhi" checked> Gurmukhi</label>
+                    <label class="toggle-row"><input type="checkbox" id="toggle-roman"> Roman (Transliteration)</label>
+                    <label class="toggle-row"><input type="checkbox" id="toggle-punjabi" checked> Punjabi Translation</label>
+                    <label class="toggle-row"><input type="checkbox" id="toggle-english" checked> English Translation</label>
+                </div>
+
+                <div class="reader-paper" id="reader-content">
+                    <div class="loading-spinner">Loading Gurbani...</div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Advanced Global Audio Player -->
+        <div id="audio-player" class="audio-player collapsed">
+            <!-- Expanded View Controls (Hidden initially) -->
+            <div class="player-expanded-controls" id="player-expanded">
+                <button class="icon-btn" id="player-repeat"><i data-lucide="repeat"></i></button>
+                <button class="icon-btn" id="player-speed">1x</button>
+                <button class="icon-btn" id="player-mute"><i data-lucide="volume-2"></i></button>
+            </div>
+            
+            <div class="player-progress-container" id="player-progress-container">
+                <div class="player-progress-bar">
+                    <div class="player-progress" id="player-progress"></div>
+                </div>
+                <div class="player-time-labels">
+                    <span id="player-time-current">0:00</span>
+                    <span id="player-time-total">0:00</span>
+                </div>
+            </div>
+
+            <div class="player-main-bar">
+                <div class="player-info" id="player-info-toggle">
+                    <div class="live-badge" id="player-live-badge" style="display:none;">LIVE</div>
+                    <span id="player-title">Not Playing</span>
+                    <span id="player-subtitle">Select a Bani or Kirtan</span>
+                </div>
+                <div class="player-controls">
+                    <button class="icon-btn" id="player-prev"><i data-lucide="skip-back"></i></button>
+                    <button class="icon-btn play-btn-large" id="player-play-pause"><i data-lucide="play"></i></button>
+                    <button class="icon-btn" id="player-next"><i data-lucide="skip-forward"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav">
+            <button class="nav-item active" data-target="screen-home">
+                <i data-lucide="home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-target="screen-nitnem">
+                <i data-lucide="book"></i>
+                <span>Nitnem</span>
+            </button>
+            <button class="nav-item" data-target="screen-gurbani">
+                <i data-lucide="search"></i>
+                <span>Search</span>
+            </button>
+            <button class="nav-item" data-target="screen-kirtan">
+                <i data-lucide="radio"></i>
+                <span>Kirtan</span>
+            </button>
+            <button class="nav-item" data-target="screen-profile">
+                <i data-lucide="user"></i>
+                <span>Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <audio id="global-audio"></audio>
+
+    <script src="js/api.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
