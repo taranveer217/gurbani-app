@@ -569,24 +569,24 @@ class UIController {
         resultsContainer.innerHTML = '';
         
         const isGurmukhi = /[\u0A00-\u0A7F]/.test(query);
-        let searchType = 1; 
+        let searchType = 0; // 0 = First Letter Start (Default)
 
         if (isGurmukhi) {
             // If the query has spaces or Gurmukhi matras (vowels), it's likely a full word search
             const hasMatras = /[\u0A3E-\u0A4C\u0A70\u0A71]/.test(query);
             if (hasMatras || query.includes(' ')) {
-                searchType = 3; // FullWord (Gurmukhi)
+                searchType = 2; // 2 = Full Word (Gurmukhi)
             } else {
-                searchType = 1; // FirstLetter from start (more accurate than anywhere)
+                searchType = 0; // 0 = First Letter from start
             }
         } else {
             // Check if it looks like an English translation sentence
             const words = query.trim().split(/\s+/);
             const isFullEnglish = words.length > 1 && words.every(w => w.length > 2);
             if (isFullEnglish) {
-                searchType = 4; // English Translation
+                searchType = 3; // 3 = Full Word (English Translation)
             } else {
-                searchType = 1; // FirstLetter from start (default for Romanized)
+                searchType = 0; // 0 = First Letter from start
             }
         }
 

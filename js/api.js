@@ -47,8 +47,8 @@ const API = {
         return this.fetchWithCache(`${API_BASE_URL}/shabad/${id}`);
     },
 
-    async search(query, searchType = 1) {
-        // SearchTypes: 1=FirstLetter (default for quick search), 2=AnyFirstLetter, 3=FullWord (Gurmukhi), 4=English Translation
+    async search(query, searchType = 0) {
+        // SearchTypes: 0=FirstLetter Start, 1=AnyFirstLetter, 2=FullWord (Gurmukhi), 3=English Translation
         return this.fetchWithCache(`${API_BASE_URL}/search/${encodeURIComponent(query)}?searchtype=${searchType}`);
     },
 
