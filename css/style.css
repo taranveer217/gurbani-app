@@ -3,29 +3,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Mukta+Mahee:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Theme: Ethereal Pearl & Radiant Saffron (Ultra Premium) */
-    --bg-primary: #F5F6F4; /* Pearl white background */
-    --bg-secondary: #FFFFFF; /* Pure white for glass cards */
-    --bg-reader: #FFFCF7; /* Warm reading background */
+    /* Enhanced Theme: Ethereal Pearl & Radiant Saffron (Ultra Premium) */
+    --bg-primary: #F8F9FA;
+    --bg-secondary: rgba(255, 255, 255, 0.95);
+    --bg-reader: #FFFAF0;
     
-    --text-primary: #1A1F24; /* Deep slate instead of black */
-    --text-secondary: #6B7280;
-    --text-gurmukhi: #C92A2A; /* Rich crimson for Gurbani */
+    --text-primary: #1F2937;
+    --text-secondary: #4B5563;
+    --text-gurmukhi: #B91C1C;
     
-    --accent-primary: #E85D04; /* Vibrant modern saffron */
-    --accent-primary-light: #FF9248;
-    --accent-primary-glow: rgba(255, 107, 0, 0.2);
+    --accent-primary: #F97316;
+    --accent-primary-light: #FDBA74;
+    --accent-primary-glow: rgba(249, 115, 22, 0.25);
     
-    --accent-gold: #D4AF37; /* Classic Gold */
-    --accent-gold-light: #FCE8A1;
+    --accent-gold: #D97706;
+    --accent-gold-light: #FDE68A;
     
-    --accent-dark: #24130A; /* Deep contrast */
+    --accent-dark: #431407;
     
-    --border-color: rgba(255, 107, 0, 0.1); /* Subtle saffron borders */
+    --border-color: rgba(249, 115, 22, 0.15);
     
     /* Cinematic Glass Shadows */
-    --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.03);
-    --shadow-md: 0 15px 35px rgba(255, 107, 0, 0.05);
+    --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 30px rgba(249, 115, 22, 0.1);
     --shadow-glow: 0 15px 40px var(--accent-primary-glow);
     
     --nav-height: 85px;
@@ -34,21 +34,21 @@
 }
 
 body.theme-dark {
-    /* Theme: Deep Midnight & Glowing Amber (Cinematic Dark Mode) */
-    --bg-primary: #0B0E14; /* Deep midnight blue-black */
-    --bg-secondary: #151A22; /* Elevated dark cards */
-    --bg-reader: #10131A;
+    /* Enhanced Theme: Deep Midnight & Glowing Amber (Cinematic Dark Mode) */
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --bg-reader: #0B0F19;
     
-    --text-primary: #F3F4F6;
-    --text-secondary: #9CA3AF;
-    --text-gurmukhi: #FF8787; /* Soft luminous red/pink for dark mode */
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-gurmukhi: #FCA5A5;
     
-    --border-color: rgba(255, 255, 255, 0.05);
-    --accent-primary: #FF8C00;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --accent-primary: #FB923C;
     
-    --shadow-sm: 0 8px 25px rgba(0, 0, 0, 0.5);
-    --shadow-md: 0 20px 40px rgba(0, 0, 0, 0.6);
-    --shadow-glow: 0 15px 40px rgba(255, 140, 0, 0.15);
+    --shadow-sm: 0 8px 25px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 20px 40px rgba(0, 0, 0, 0.8);
+    --shadow-glow: 0 15px 40px rgba(251, 146, 60, 0.2);
 }
 
 body.font-size-small { --font-scale: 0.85; }
@@ -240,6 +240,7 @@ body[data-lang-roman="false"] .roman-text { display: none; }
     flex: 1; overflow-y: auto; overflow-x: hidden;
     padding-bottom: calc(var(--nav-height) + var(--player-height) + 2rem);
     scroll-behavior: smooth;
+    position: relative;
 }
 
 /* Screens */
@@ -732,10 +733,11 @@ body.theme-dark .shabad-result-meta span { background: rgba(255,255,255,0.05); }
 
     .screen {
         min-width: 0;
-        height: auto;
-        min-height: 100%;
+        height: 100%;
         padding: 1rem max(0.75rem, env(safe-area-inset-left)) 1.5rem max(0.75rem, env(safe-area-inset-right));
         overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .screen.active {
@@ -1249,4 +1251,88 @@ body.theme-dark .shabad-result-meta span { background: rgba(255,255,255,0.05); }
 @media (max-width: 768px) {
     .keyboard-keys { grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .gurmukhi-key { padding: 8px 0; font-size: 1.1rem; }
+}
+
+/* 10 Guru History Screen Styles */
+.guru-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.guru-card {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 255, 255, 0.4) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+body.theme-dark .guru-card {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(30, 41, 59, 0.6) 100%);
+}
+
+.guru-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--accent-gold), var(--accent-primary));
+    opacity: 0.8;
+    transition: width 0.3s ease;
+}
+
+.guru-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-primary);
+}
+
+.guru-card:hover::before {
+    width: 100%;
+    opacity: 0.05;
+}
+
+.guru-number {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+    opacity: 0.3;
+    line-height: 1;
+    min-width: 40px;
+    text-align: center;
+}
+
+.guru-info {
+    flex: 1;
+}
+
+.guru-info h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--accent-dark);
+    margin-bottom: 0.5rem;
+}
+
+body.theme-dark .guru-info h3 {
+    color: var(--accent-gold);
+}
+
+.guru-info p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
 }
