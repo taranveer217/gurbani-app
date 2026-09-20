@@ -99,7 +99,12 @@ class UIController {
             this.readerScreen.classList.remove('active');
         });
 
-        document.querySelector('.search-trigger').addEventListener('click', () => this.navigateTo('screen-gurbani'));
+        const searchTrigger = document.querySelector('.search-trigger');
+        searchTrigger?.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.navigateTo('screen-gurbani');
+            document.getElementById('gurbani-search-input')?.focus({ preventScroll: true });
+        });
 
         document.getElementById('reader-settings-btn').addEventListener('click', () => {
             this.readerSettingsDrawer.classList.toggle('active');
