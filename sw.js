@@ -1,6 +1,6 @@
 // sw.js - Basic Service Worker for PWA
 
-const CACHE_NAME = 'gurbani-nitnem-v2';
+const CACHE_NAME = 'gurbani-nitnem-v3';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',

@@ -521,6 +521,479 @@ body.theme-dark .gurmukhi-key.action-key { background: rgba(255,255,255,0.05); }
 .shabad-result-meta span { background: rgba(0,0,0,0.05); padding: 3px 8px; border-radius: 12px; }
 body.theme-dark .shabad-result-meta span { background: rgba(255,255,255,0.05); }
 
+/* Responsive layout refinements. Desktop rules above remain unchanged. */
+@media (max-width: 1023px) {
+    #main-content {
+        padding-bottom: calc(var(--nav-height) + var(--player-height) + 1.5rem);
+    }
+
+    .screen {
+        padding: clamp(1rem, 2.5vw, 1.5rem);
+    }
+
+    .card,
+    .settings-card {
+        max-width: 100%;
+    }
+
+    .fancy-list .list-item {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    :root {
+        --nav-height: 68px;
+        --player-height: 116px;
+    }
+
+    body {
+        overflow: hidden;
+        background-attachment: scroll;
+    }
+
+    #app {
+        min-height: 100dvh;
+    }
+
+    #app-header {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .header-container {
+        min-height: 0;
+        padding: 0.45rem max(0.65rem, env(safe-area-inset-left)) 0.5rem max(0.65rem, env(safe-area-inset-right));
+        gap: 0.35rem;
+    }
+
+    .header-left,
+    .header-right {
+        min-width: 0;
+    }
+
+    .brand-group,
+    .header-right-inner {
+        min-width: 0;
+    }
+
+    .brand-text {
+        min-width: 0;
+    }
+
+    .main-title {
+        max-width: 45vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: clamp(0.68rem, 3.2vw, 0.78rem);
+    }
+
+    .header-center {
+        min-width: 0;
+        flex-wrap: wrap;
+        row-gap: 0.15rem;
+    }
+
+    .mool-mantar {
+        font-size: clamp(0.7rem, 3.5vw, 0.82rem);
+    }
+
+    .time-display-container {
+        min-width: 0;
+        max-width: 100%;
+        padding: 0.2rem 0.45rem;
+    }
+
+    .clock-big {
+        font-size: clamp(0.78rem, 4vw, 0.9rem);
+        white-space: nowrap;
+    }
+
+    .date-group {
+        min-width: 0;
+        max-width: 55vw;
+        overflow: hidden;
+    }
+
+    .date-en-medium,
+    .date-pa-medium {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #main-content {
+        min-width: 0;
+        padding-bottom: calc(var(--nav-height) + var(--player-height) + env(safe-area-inset-bottom) + 1rem);
+    }
+
+    .screen {
+        min-width: 0;
+        height: 100%;
+        padding: 1rem max(0.75rem, env(safe-area-inset-left)) 1.5rem max(0.75rem, env(safe-area-inset-right));
+        overflow-x: hidden;
+    }
+
+    .section-title {
+        margin: 1.25rem 0 0.85rem;
+    }
+
+    .section-title h2 {
+        font-size: clamp(1.2rem, 6vw, 1.5rem);
+        line-height: 1.25;
+    }
+
+    .hero-card {
+        padding: 1.25rem 0.85rem;
+        border-radius: 1rem;
+    }
+
+    .hero-badge {
+        max-width: 100%;
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        line-height: 1.3;
+    }
+
+    .hero-title {
+        font-size: clamp(1.3rem, 7vw, 1.6rem);
+        line-height: 1.2;
+    }
+
+    .hero-gurmukhi-container {
+        margin: 1rem 0;
+        padding: 1rem 0;
+    }
+
+    .hero-gurmukhi-container .gurmukhi-text,
+    #huk-morning-gurmukhi {
+        font-size: clamp(1.35rem, 6vw, 1.75rem) !important;
+        line-height: 1.75;
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        min-height: 44px;
+        font-size: clamp(0.9rem, 4vw, 1rem);
+    }
+
+    .grid-2-col {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .action-card,
+    .nitnem-card {
+        min-height: 76px;
+        padding: 1rem 0.85rem;
+        border-radius: 1rem;
+    }
+
+    .nitnem-card h4,
+    .fancy-list .list-item h3 {
+        font-size: clamp(1rem, 4.6vw, 1.2rem);
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .nitnem-card .gurmukhi-text,
+    .fancy-list .list-item .gurmukhi-text {
+        font-size: clamp(1.1rem, 5vw, 1.35rem) !important;
+        line-height: 1.55;
+        overflow-wrap: break-word;
+    }
+
+    .fancy-list .list-item {
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.9rem;
+        margin-bottom: 0.75rem;
+        border-radius: 1rem;
+    }
+
+    .fancy-list .list-item > div:first-child {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .kirtan-card {
+        min-width: 0;
+        padding: 0.9rem;
+        gap: 0.6rem;
+    }
+
+    .kirtan-card-icon {
+        width: 46px;
+        height: 46px;
+        margin-right: 0.25rem;
+    }
+
+    .kirtan-card-info h3 {
+        font-size: 1rem;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .kirtan-card-info p {
+        font-size: 0.8rem;
+    }
+
+    .kirtan-play-btn {
+        width: 44px;
+        height: 44px;
+        margin-left: 0;
+    }
+
+    .search-box {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .search-box input {
+        min-width: 0;
+        font-size: 1rem;
+    }
+
+    .shabad-result-meta {
+        gap: 0.35rem;
+        line-height: 1.3;
+    }
+
+    .shabad-result-meta span {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    #bottom-nav {
+        height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+        padding: 0.25rem 0 env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 0.68rem;
+    }
+
+    .nav-item i {
+        width: 22px;
+        height: 22px;
+        margin-bottom: 2px;
+    }
+
+    #audio-player {
+        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+        border-radius: 16px 16px 0 0;
+    }
+
+    #player-expanded {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        min-height: 48px;
+        padding: 0.25rem 0.75rem;
+    }
+
+    #player-expanded .icon-btn {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 0.45rem;
+    }
+
+    .player-progress-container {
+        padding: 0 0.85rem;
+    }
+
+    .player-main-bar {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.65rem 0.85rem 0.75rem;
+    }
+
+    .player-info {
+        flex: 1 1 100%;
+        min-width: 0;
+        text-align: center;
+    }
+
+    #player-title,
+    #player-subtitle {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #player-title {
+        font-size: 1rem;
+    }
+
+    #player-subtitle {
+        font-size: 0.78rem;
+    }
+
+    .player-controls {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .play-btn-large,
+    .player-controls .icon-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .reader-toolbar {
+        gap: 0.35rem;
+        padding: 0.65rem 0.75rem;
+        padding-top: max(0.65rem, env(safe-area-inset-top));
+    }
+
+    .reader-title {
+        min-width: 0;
+        flex: 1;
+        font-size: clamp(0.95rem, 4.8vw, 1.15rem);
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .reader-actions {
+        display: flex;
+        flex-shrink: 0;
+    }
+
+    .reader-actions .icon-btn,
+    .close-reader {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 0.45rem;
+    }
+
+    .reader-paper {
+        min-width: 0;
+        padding: 1.25rem 0.7rem calc(8rem + env(safe-area-inset-bottom));
+        background-size: 100% 44px;
+    }
+
+    .bani-stanza {
+        margin-bottom: calc(1.75rem * var(--font-scale));
+        padding-bottom: 0.75rem;
+    }
+
+    .reader-paper .gurmukhi-text {
+        font-size: clamp(1.35rem, 6vw, 1.8rem);
+        line-height: 1.8;
+        overflow-wrap: break-word;
+    }
+
+    .reader-paper .punjabi-text,
+    .reader-paper .english-text,
+    .reader-paper .roman-text {
+        font-size: clamp(0.92rem, 4vw, 1.05rem);
+        line-height: 1.55;
+        overflow-wrap: break-word;
+    }
+
+    .reader-settings-drawer {
+        max-width: 100%;
+        padding: 0.8rem;
+    }
+
+    .theme-selector,
+    .font-size-selector {
+        flex-wrap: wrap;
+    }
+
+    .theme-btn,
+    .font-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.65rem 0.5rem;
+    }
+
+    .keyboard-container {
+        bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+        max-height: min(54dvh, 430px);
+        overflow-y: auto;
+        padding: 0.55rem max(0.45rem, env(safe-area-inset-left)) 0.65rem max(0.45rem, env(safe-area-inset-right));
+    }
+
+    .keyboard-keys {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.25rem;
+    }
+
+    .gurmukhi-key {
+        min-width: 0;
+        min-height: 42px;
+        padding: 0.35rem 0;
+        font-size: clamp(1rem, 5vw, 1.2rem);
+    }
+
+    .gurmukhi-key.action-key {
+        font-size: clamp(0.68rem, 3vw, 0.85rem);
+    }
+}
+
+@media (max-width: 380px) {
+    .header-center {
+        gap: 0.25rem;
+    }
+
+    .mool-mantar {
+        font-size: 0.68rem;
+    }
+
+    .date-group {
+        max-width: 49vw;
+    }
+
+    .hero-card {
+        padding-inline: 0.65rem;
+    }
+
+    .screen {
+        padding-inline: 0.6rem;
+    }
+
+    .nav-item span {
+        font-size: 0.6rem;
+    }
+
+    .keyboard-keys {
+        gap: 0.2rem;
+    }
+
+    .gurmukhi-key {
+        min-height: 40px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+    #app-header .header-center {
+        width: auto;
+        margin-top: 0;
+    }
+
+    #app-header .header-container {
+        flex-wrap: nowrap;
+    }
+
+    .keyboard-container {
+        max-height: 72dvh;
+    }
+
+    .reader-paper {
+        padding-bottom: 5rem;
+    }
+}
+
 @media (max-width: 768px) {
     .keyboard-keys { grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .gurmukhi-key { padding: 8px 0; font-size: 1.1rem; }
