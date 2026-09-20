@@ -407,6 +407,8 @@ body.theme-dark .kirtan-play-btn { background: rgba(255,255,255,0.1); color: whi
 }
 .fancy-list .list-item:hover { transform: translateX(5px); border-color: var(--accent-gold); }
 .fancy-list .list-item h3 { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+.data-error { color: var(--text-secondary); padding: 1rem; text-align: center; }
+.audio-unavailable { color: var(--text-secondary); font-size: 0.75rem; text-align: right; }
 
 /* Audio Player */
 #audio-player {

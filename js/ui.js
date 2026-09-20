@@ -99,15 +99,25 @@ class UIController {
             this.readerScreen.classList.remove('active');
         });
 
+        document.querySelector('.search-trigger').addEventListener('click', () => this.navigateTo('screen-gurbani'));
+
         document.getElementById('reader-settings-btn').addEventListener('click', () => {
             this.readerSettingsDrawer.classList.toggle('active');
         });
 
         document.getElementById('download-data-btn').addEventListener('click', async (e) => {
-            e.target.textContent = 'Downloading...';
-            await window.API.downloadAllNitnem();
-            e.target.textContent = 'Downloaded (Available Offline)';
-            this.calculateStorage();
+            const button = e.currentTarget;
+            button.disabled = true;
+            button.textContent = 'Downloading...';
+            try {
+                await window.API.downloadAllNitnem();
+                button.textContent = 'Updated for Offline Use';
+            } catch (error) {
+                button.textContent = 'Download Failed';
+            } finally {
+                button.disabled = false;
+                this.calculateStorage();
+            }
         });
 
         // Reader Favorite/Bookmark bindings
@@ -192,18 +202,31 @@ class UIController {
             const action = btn.getAttribute('data-action');
             const char = btn.getAttribute('data-char');
 
+            const start = searchInput.selectionStart ?? val.length;
+            const end = searchInput.selectionEnd ?? val.length;
             if (char) {
-                val += char;
+                val = val.slice(0, start) + char + val.slice(end);
+                searchInput.value = val;
+                searchInput.setSelectionRange(start + char.length, start + char.length);
             } else if (action === 'space') {
-                val += ' ';
+                val = val.slice(0, start) + ' ' + val.slice(end);
+                searchInput.value = val;
+                searchInput.setSelectionRange(start + 1, start + 1);
             } else if (action === 'backspace') {
-                val = val.slice(0, -1);
+                if (start !== end) {
+                    val = val.slice(0, start) + val.slice(end);
+                    searchInput.value = val;
+                    searchInput.setSelectionRange(start, start);
+                } else if (start > 0) {
+                    val = val.slice(0, start - 1) + val.slice(end);
+                    searchInput.value = val;
+                    searchInput.setSelectionRange(start - 1, start - 1);
+                }
             } else if (action === 'search') {
                 keyboardContainer.classList.add('hidden');
                 return; // Action only, no input change
             }
 
-            searchInput.value = val;
             searchInput.dispatchEvent(new Event('input'));
         });
     }
@@ -219,10 +242,12 @@ class UIController {
         
         if (searches.length > 0) {
             historyContainer.style.display = 'block';
-            chipsContainer.innerHTML = searches.map(q => `<button class="chip">${q}</button>`).join('');
+            chipsContainer.innerHTML = searches.map(q => `<button class="chip" type="button"></button>`).join('');
             chipsContainer.querySelectorAll('.chip').forEach(chip => {
+                const query = searches[Array.from(chipsContainer.children).indexOf(chip)];
+                chip.textContent = query;
                 chip.addEventListener('click', () => {
-                    document.getElementById('gurbani-search-input').value = chip.textContent;
+                    document.getElementById('gurbani-search-input').value = query;
                     document.getElementById('gurbani-search-input').dispatchEvent(new Event('input'));
                 });
             });
@@ -240,13 +265,16 @@ class UIController {
             savedList.innerHTML = saved.map(s => `
                 <li class="list-item" data-id="${s.id}">
                     <div style="flex:1;">
-                        <h3 class="gurmukhi-text" style="font-size:1.1rem; text-align:left; margin:0;">${s.firstLine}</h3>
+                        <h3 class="gurmukhi-text" style="font-size:1.1rem; text-align:left; margin:0;"></h3>
                         <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">
                             ${s.type === 'favorite' ? '❤️' : '🔖'} • Ang ${s.ang}
                         </p>
                     </div>
                 </li>
             `).join('');
+            saved.forEach((item, index) => {
+                savedList.querySelectorAll('.list-item h3')[index].textContent = item.firstLine || 'Saved Shabad';
+            });
             
             savedList.querySelectorAll('.list-item').forEach(li => {
                 li.addEventListener('click', () => {
@@ -267,6 +295,12 @@ class UIController {
         localStorage.setItem('recent_searches', JSON.stringify(searches));
     }
 
+    escapeHTML(value) {
+        return String(value || '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[character]));
+    }
+
     toggleSavedShabad(type) {
         if (!this.currentShabadData) return;
         const shabadId = this.currentShabadData.id;
@@ -282,7 +316,8 @@ class UIController {
                 id: shabadId,
                 type: type,
                 firstLine: this.currentShabadData.firstLine,
-                ang: this.currentShabadData.ang
+                    ang: this.currentShabadData.ang,
+                    lines: this.currentShabadData.lines
             });
             alert(`Saved to ${type}s!`);
         }
@@ -326,30 +361,22 @@ class UIController {
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener('click', () => {
-                window.Player.play({ url: state.url, title: state.title });
-                window.Player.audio.currentTime = state.time; // Seek to last point
+                window.Player.play({
+                    url: state.url,
+                    title: state.title,
+                    paathId: state.paathId,
+                    resumeTime: state.time,
+                    subtitle: 'Nitnem Audio'
+                });
             });
         }
     }
 
     updateRealTimeDate() {
         const today = new Date();
-        const optionsEn = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        
-        let paDate = '';
-        let enDate = '';
-        
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        
-        enDate = `${days[today.getDay()]}, ${months[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
-        
-        try {
-            paDate = new Intl.DateTimeFormat('pa-IN', optionsEn).format(today);
-        } catch (e) {
-            console.warn("Browser does not support Punjabi locale automatically.");
-            paDate = "ਅੱਜ ਦਾ ਹੁਕਮਨਾਮਾ";
-        }
+        const optionsEn = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata' };
+        const enDate = new Intl.DateTimeFormat('en-IN', optionsEn).format(today);
+        const paDate = new Intl.DateTimeFormat('pa-IN', optionsEn).format(today);
 
         const dateEnEl = document.getElementById('live-date-en');
         const datePaEl = document.getElementById('live-date-pa');
@@ -357,52 +384,88 @@ class UIController {
         
         if (dateEnEl) dateEnEl.textContent = enDate;
         if (datePaEl) datePaEl.textContent = paDate;
-        if (liveTimeEl) liveTimeEl.textContent = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (liveTimeEl) liveTimeEl.textContent = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(today);
 
         // Use local date string YYYY-MM-DD to avoid timezone shift issues
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return window.API.getCurrentIndiaDate();
     }
 
     async renderHomeHukamnama() {
-        const todayLocalStr = this.updateRealTimeDate();
-        setInterval(() => this.updateRealTimeDate(), 1000); // Update time every second
+        const todayIndiaDate = this.updateRealTimeDate();
+        if (!this.clockTimer) {
+            this.clockTimer = setInterval(() => {
+                const dateKey = this.updateRealTimeDate();
+                if (dateKey !== this.currentIndiaDate) {
+                    this.currentIndiaDate = dateKey;
+                    this.refreshDailyHukamnama(dateKey);
+                }
+            }, 1000);
+        }
+        this.currentIndiaDate = todayIndiaDate;
+        this.scheduleNextIndiaMidnight();
+        this.bindDailyRefreshEvents();
+        return this.refreshDailyHukamnama(todayIndiaDate);
+    }
 
-        const data = await window.API.getHukamnama();
+    bindDailyRefreshEvents() {
+        if (this.dailyRefreshEventsBound) return;
+        this.dailyRefreshEventsBound = true;
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') this.refreshDailyHukamnama(this.updateRealTimeDate());
+        });
+        window.addEventListener('focus', () => this.refreshDailyHukamnama(this.updateRealTimeDate()));
+        window.addEventListener('pageshow', () => this.refreshDailyHukamnama(this.updateRealTimeDate()));
+        window.addEventListener('online', () => this.refreshDailyHukamnama(this.updateRealTimeDate()));
+    }
+
+    scheduleNextIndiaMidnight() {
+        if (this.midnightTimer) clearTimeout(this.midnightTimer);
+        const delay = Math.max(0, window.API.getNextIndiaMidnight() - Date.now());
+        this.midnightTimer = setTimeout(() => {
+            const dateKey = this.updateRealTimeDate();
+            this.currentIndiaDate = dateKey;
+            this.refreshDailyHukamnama(dateKey);
+        }, delay + 50);
+    }
+
+    setHukamnamaLoading() {
+        const morningDateEl = document.getElementById('huk-morning-date');
+        const morningAngEl = document.getElementById('huk-morning-ang');
+        const morningGurmukhiEl = document.getElementById('huk-morning-gurmukhi');
+        const readBtn = document.getElementById('read-morning-btn');
+        morningDateEl.textContent = 'Checking for updates...';
+        morningAngEl.textContent = '';
+        morningGurmukhiEl.textContent = '';
+        readBtn.disabled = true;
+        morningGurmukhiEl.parentElement.parentElement.querySelectorAll('.hukamnama-retry').forEach(button => button.remove());
+    }
+
+    async refreshDailyHukamnama(dateKey = this.updateRealTimeDate()) {
+        const requestId = (this.hukamnamaRequestId || 0) + 1;
+        this.hukamnamaRequestId = requestId;
+        this.currentIndiaDate = dateKey;
+        this.scheduleNextIndiaMidnight();
+        this.setHukamnamaLoading();
+
+        const data = await window.API.getHukamnama(dateKey);
+        if (requestId !== this.hukamnamaRequestId || dateKey !== this.updateRealTimeDate()) return;
+
         const morningDateEl = document.getElementById('huk-morning-date');
         const morningAngEl = document.getElementById('huk-morning-ang');
         const morningGurmukhiEl = document.getElementById('huk-morning-gurmukhi');
         const readBtn = document.getElementById('read-morning-btn');
 
-        if (data && data.hukamnama && data.hukamnama.length > 0) {
+        if (data && !data.error && data.hukamnama && data.hukamnama.length > 0) {
             let dateStr = 'Today\'s Hukamnama';
-            let isPreviousDay = false;
-            
             if (data.date && data.date.gregorian) {
                 const g = data.date.gregorian;
-                // API returns gregorian: { monthno: 9, date: 19, year: 2026 }
                 const apiYear = g.year;
                 const apiMonth = String(g.monthno).padStart(2, '0');
                 const apiDay = String(g.date).padStart(2, '0');
-                const apiDateLocalStr = `${apiYear}-${apiMonth}-${apiDay}`;
-                
-                const parsedDate = new Date(apiYear, g.monthno - 1, g.date);
-                if (!isNaN(parsedDate.getTime())) {
-                    dateStr = parsedDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-                    if (apiDateLocalStr !== todayLocalStr) {
-                        isPreviousDay = true;
-                    }
-                }
+                dateStr = new Date(Date.UTC(apiYear, g.monthno - 1, g.date)).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', month: 'long', day: 'numeric', year: 'numeric' });
             }
 
-            if (isPreviousDay) {
-                morningDateEl.innerHTML = `${dateStr} <span style="font-size:0.7rem; background:var(--accent-gold); color:var(--accent-navy); padding:2px 4px; border-radius:4px; margin-left:4px;">Previous Day</span>`;
-            } else {
-                morningDateEl.textContent = dateStr;
-            }
-            
+            morningDateEl.textContent = dateStr;
             const angNum = data.pageno || (data.hukamnama[0] && data.hukamnama[0].line.pageno);
             morningAngEl.textContent = angNum ? `Ang ${angNum}` : '';
 
@@ -410,52 +473,65 @@ class UIController {
             if (firstLine) {
                 morningGurmukhiEl.textContent = firstLine.line.gurmukhi.unicode;
                 readBtn.disabled = false;
+                this.currentHukamnamaData = data;
                 
                 const newBtn = readBtn.cloneNode(true);
                 readBtn.parentNode.replaceChild(newBtn, readBtn);
                 newBtn.addEventListener('click', () => {
+                    this.currentReaderType = 'hukamnama';
                     this.renderReaderFromData(`Amrit Vela Hukamnama (${dateStr})`, data.hukamnama);
                 });
+                if (this.currentReaderType === 'hukamnama' && this.readerScreen.classList.contains('active')) {
+                    this.renderReaderFromData(`Amrit Vela Hukamnama (${dateStr})`, data.hukamnama);
+                }
             }
         } else {
-            morningDateEl.textContent = "Error fetching from Sri Darbar Sahib.";
+            morningDateEl.textContent = 'Unable to fetch today\'s Hukamnama';
             morningAngEl.textContent = '';
-            morningGurmukhiEl.textContent = '';
+            morningGurmukhiEl.textContent = data && data.cachedData ? `${data.message || 'The latest verified Hukamnama is from a previous date.'} Previous data is not shown as today.` : (data && data.message ? data.message : 'Please check your connection and try again.');
             readBtn.disabled = true;
+            morningGurmukhiEl.parentElement.parentElement.querySelectorAll('.hukamnama-retry').forEach(button => button.remove());
+            const retryBtn = document.createElement('button');
+            retryBtn.className = 'secondary-btn';
+            retryBtn.classList.add('hukamnama-retry');
+            retryBtn.type = 'button';
+            retryBtn.textContent = 'Retry';
+            retryBtn.addEventListener('click', () => this.refreshDailyHukamnama(this.updateRealTimeDate()));
+            morningGurmukhiEl.insertAdjacentElement('afterend', retryBtn);
         }
 
-        // Setup Amrit Vela Watch Action (Native HTML Link)
         const watchMorningBtn = document.getElementById('watch-morning-btn');
-        if (watchMorningBtn) {
+        if (watchMorningBtn && !watchMorningBtn.dataset.pauseBound) {
+            watchMorningBtn.dataset.pauseBound = 'true';
             watchMorningBtn.addEventListener('click', () => {
-                if (window.Player) window.Player.pause(); // Pause background audio
+                if (window.Player) window.Player.pause();
             });
         }
 
-        // Setup Sandhya Vela Actions (Fallback to Official Sources)
-        document.getElementById('listen-evening-btn').addEventListener('click', () => {
-            window.Player.play({ url: 'https://live.sgpc.net:8443/;', title: 'Sri Harmandir Sahib', subtitle: 'Live Audio Stream' });
-        });
-        const watchEveningBtn = document.getElementById('watch-evening-btn');
-        if (watchEveningBtn) {
-            watchEveningBtn.addEventListener('click', () => {
-                if (window.Player) window.Player.pause(); // Pause background audio
-            });
+        const listenEveningBtn = document.getElementById('listen-evening-btn');
+        if (listenEveningBtn) {
+            listenEveningBtn.onclick = () => {
+                window.Player.play({ url: 'https://live.sgpc.net:8443/;', title: 'Sri Harmandir Sahib', subtitle: 'Live Audio Stream' });
+            };
         }
     }
 
     async renderNitnemLists() {
         const banis = await window.API.getBanisList();
-        if (!banis || !Array.isArray(banis)) return;
+        if (!banis || !Array.isArray(banis)) {
+            document.getElementById('quick-nitnem-grid').innerHTML = '<p class="data-error">Unable to load Nitnem. Please refresh and try again.</p>';
+            document.getElementById('nitnem-list').innerHTML = '';
+            return;
+        }
 
         // Core Nitnem for quick access
         const coreIds = [1, 2, 3, 4, 5, 7, 11]; // Japji, Jaap, Tav Prasad, Chaupai, Anand, Rehras, Sohila
         const coreBanis = banis.filter(b => coreIds.includes(b.id));
 
         document.getElementById('quick-nitnem-grid').innerHTML = coreBanis.map(b => `
-            <div class="nitnem-card" data-id="${b.id}">
-                <h4>${b.english}</h4>
-                <div class="gurmukhi-text" style="font-size: 1rem; margin-top:5px;">${b.unicode}</div>
+            <div class="nitnem-card" data-id="${this.escapeHTML(b.id)}">
+                <h4>${this.escapeHTML(b.english)}</h4>
+                <div class="gurmukhi-text" style="font-size: 1rem; margin-top:5px;">${this.escapeHTML(b.unicode)}</div>
             </div>
         `).join('');
 
@@ -463,13 +539,11 @@ class UIController {
         document.getElementById('nitnem-list').innerHTML = banis.map(b => `
             <li class="list-item" data-id="${b.id}">
                 <div>
-                    <h3>${b.english}</h3>
-                    <p class="gurmukhi-text" style="font-size:1.1rem; margin-top:2px; text-align:left;">${b.unicode}</p>
+                    <h3>${this.escapeHTML(b.english)}</h3>
+                        <p class="gurmukhi-text" style="font-size:1.1rem; margin-top:2px; text-align:left;">${this.escapeHTML(b.unicode)}</p>
                 </div>
                 <div>
-                    <button class="icon-btn play-bani-btn" data-id="${b.id}" data-title="${b.english}" aria-label="Play Audio">
-                        <i data-lucide="play-circle"></i>
-                    </button>
+                        ${window.API.getBaniAudioUrl(b.id) ? `<button class="icon-btn play-bani-btn" data-id="${this.escapeHTML(b.id)}" data-title="${this.escapeHTML(b.english)}" aria-label="Play Audio"><i data-lucide="play-circle"></i></button>` : '<span class="audio-unavailable">Audio unavailable</span>'}
                 </div>
             </li>
         `).join('');
@@ -478,7 +552,13 @@ class UIController {
         document.querySelectorAll('.nitnem-card, .list-item[data-id]').forEach(el => {
             el.addEventListener('click', (e) => {
                 if (e.target.closest('.play-bani-btn')) return; // Ignore if clicking play btn
-                this.openBaniReader(parseInt(el.getAttribute('data-id')), el.querySelector('h4, h3').textContent);
+                const id = parseInt(el.getAttribute('data-id'));
+                if (el.classList.contains('nitnem-card')) {
+                    const audio = window.API.getBaniAudio(id);
+                    if (audio) window.Player.play({ ...audio, subtitle: 'Nitnem Audio', isLive: false });
+                    return;
+                }
+                this.openBaniReader(id, el.querySelector('h4, h3').textContent);
             });
         });
 
@@ -488,8 +568,8 @@ class UIController {
                 e.stopPropagation();
                 const id = parseInt(btn.getAttribute('data-id'));
                 const title = btn.getAttribute('data-title');
-                const url = window.API.getBaniAudioUrl(id);
-                window.Player.play({ url, title });
+                const audio = window.API.getBaniAudio(id);
+                if (audio) window.Player.play({ ...audio, subtitle: 'Nitnem Audio', isLive: false });
             });
         });
 
@@ -497,13 +577,15 @@ class UIController {
     }
 
     async openBaniReader(id, title, isShabad = false) {
+        this.currentReaderType = 'other';
         this.readerTitle.textContent = title;
         this.readerContent.innerHTML = '<div class="loading-spinner">Loading from Database...</div>';
         this.readerScreen.classList.add('active');
         this.readerSettingsDrawer.classList.remove('active');
 
         try {
-            const data = isShabad ? await window.API.getShabad(id) : await window.API.getBani(id);
+            const savedItem = isShabad ? (JSON.parse(localStorage.getItem('saved_shabads')) || []).find(item => String(item.id) === String(id)) : null;
+            const data = savedItem && savedItem.lines ? { shabad: savedItem.lines } : (isShabad ? await window.API.getShabad(id) : await window.API.getBani(id));
             if (data && data.error) throw new Error(data.message);
             
             const targetArray = isShabad ? data.shabad : data.bani;
@@ -511,9 +593,10 @@ class UIController {
                 // Save context for saving/bookmarking
                 if (isShabad) {
                     this.currentShabadData = {
-                        id: targetArray[0].line.shabadid,
-                        firstLine: targetArray[0].line.gurmukhi.unicode,
-                        ang: targetArray[0].line.pageno
+                        id: (data.shabadinfo && data.shabadinfo.shabadid) || targetArray[0].line.shabadid || id,
+                        firstLine: targetArray[0].line.gurmukhi ? targetArray[0].line.gurmukhi.unicode : '',
+                        ang: (data.shabadinfo && data.shabadinfo.pageno) || targetArray[0].line.pageno,
+                        lines: targetArray
                     };
                     this.updateSavedButtonsState();
                     document.getElementById('reader-favorite-btn').style.display = 'inline-flex';
@@ -529,7 +612,20 @@ class UIController {
                 throw new Error("No data found.");
             }
         } catch (e) {
-            this.readerContent.innerHTML = `<div class="loading-spinner" style="color:var(--text-gurmukhi);">${e.message || 'Error loading Bani. Connect to internet to cache.'} <br><br> <button class="secondary-btn" onclick="document.querySelector('.close-reader').click()">Go Back</button></div>`;
+            this.readerContent.textContent = '';
+            const error = document.createElement('div');
+            error.className = 'loading-spinner';
+            error.style.color = 'var(--text-gurmukhi)';
+            error.textContent = e.message || 'Error loading Bani. Connect to internet to cache.';
+            const back = document.createElement('button');
+            back.className = 'secondary-btn';
+            back.type = 'button';
+            back.textContent = 'Go Back';
+            back.addEventListener('click', () => this.readerScreen.classList.remove('active'));
+            error.appendChild(document.createElement('br'));
+            error.appendChild(document.createElement('br'));
+            error.appendChild(back);
+            this.readerContent.appendChild(error);
         }
     }
 
@@ -542,17 +638,17 @@ class UIController {
             if (!line) return;
             
             const gurmukhi = line.gurmukhi ? line.gurmukhi.unicode : '';
-            const punjabi = line.translation && line.translation.punjabi ? line.translation.punjabi.default.unicode : '';
+            const punjabi = line.translation && line.translation.punjabi && line.translation.punjabi.default ? line.translation.punjabi.default.unicode : '';
             const english = line.translation && line.translation.english ? line.translation.english.default : '';
             const roman = line.transliteration && line.transliteration.english ? line.transliteration.english.text : '';
 
             // Handle translations missing based on user request (Show explicitly if missing but allowed, else CSS handles it)
             html += `
                 <div class="bani-stanza">
-                    <div class="gurmukhi-text">${gurmukhi}</div>
-                    <div class="roman-text">${roman || '<span style="opacity:0.5;">Transliteration not available.</span>'}</div>
-                    <div class="punjabi-text">${punjabi || '<span style="opacity:0.5;">Translation not available.</span>'}</div>
-                    <div class="english-text">${english || '<span style="opacity:0.5;">Translation not available.</span>'}</div>
+                    <div class="gurmukhi-text">${this.escapeHTML(gurmukhi)}</div>
+                    <div class="roman-text">${this.escapeHTML(roman) || '<span style="opacity:0.5;">Transliteration not available.</span>'}</div>
+                    <div class="punjabi-text">${this.escapeHTML(punjabi) || '<span style="opacity:0.5;">Translation not available.</span>'}</div>
+                    <div class="english-text">${this.escapeHTML(english) || '<span style="opacity:0.5;">Translation not available.</span>'}</div>
                 </div>
             `;
         });
@@ -602,16 +698,16 @@ class UIController {
                 status.textContent = `Found ${data.count} results for "${query}"`;
                 
                 resultsContainer.innerHTML = data.shabads.map(item => {
-                    const line = item.shabad.shabadinfo.line; 
-                    const pageno = item.shabad.shabadinfo.pageno || 'Unknown';
-                    const raag = item.shabad.shabadinfo.raag ? item.shabad.shabadinfo.raag.english : 'Unknown Raag';
-                    const writer = item.shabad.shabadinfo.writer ? item.shabad.shabadinfo.writer.english : 'Unknown Mahalla';
-                    const source = item.shabad.shabadinfo.source ? item.shabad.shabadinfo.source.english : 'Gurbani';
+                    const line = item.shabad;
+                    const pageno = line.pageno || 'Unknown';
+                    const raag = line.raag ? line.raag.english : 'Unknown Raag';
+                    const writer = line.writer ? line.writer.english : 'Unknown Mahalla';
+                    const source = line.source ? line.source.english : 'Gurbani';
                     
                     return `
-                    <li class="list-item search-result-item" data-shabad-id="${item.shabad.shabadinfo.id}" style="display:flex; flex-direction:column; align-items:flex-start; cursor:pointer;">
-                        <p class="gurmukhi-text" style="font-size:1.3rem; text-align:left; color:var(--text-gurmukhi); margin-bottom: 2px;">${line.gurmukhi.unicode}</p>
-                        <p class="roman-text" style="font-size:0.95rem; text-align:left; color:var(--text-primary); margin-bottom: 4px;">${line.transliteration.english.text}</p>
+                    <li class="list-item search-result-item" data-shabad-id="${this.escapeHTML(line.shabadid)}" style="display:flex; flex-direction:column; align-items:flex-start; cursor:pointer;">
+                        <p class="gurmukhi-text" style="font-size:1.3rem; text-align:left; color:var(--text-gurmukhi); margin-bottom: 2px;">${this.escapeHTML(line.gurmukhi && line.gurmukhi.unicode)}</p>
+                        <p class="roman-text" style="font-size:0.95rem; text-align:left; color:var(--text-primary); margin-bottom: 4px;">${this.escapeHTML(line.transliteration && line.transliteration.english && line.transliteration.english.text)}</p>
                         <div class="shabad-result-meta" style="margin-top:0.25rem;">
                             <span>Ang ${pageno}</span>
                             <span>${raag}</span>
@@ -636,7 +732,15 @@ class UIController {
                 status.innerHTML = 'ਕੋਈ ਨਤੀਜਾ ਨਹੀਂ ਮਿਲਿਆ<br><span style="font-size:0.8rem; color:var(--text-secondary); font-family:\'Inter\', sans-serif;">No verified Gurbani result found. Try typing the first letters of each word in english.</span>';
             }
         } catch(e) {
-            status.innerHTML = `<span style="color:var(--text-gurmukhi);">${e.message}</span><br><br><button class="secondary-btn" onclick="window.UI.executeSearch('${query}')">Retry</button>`;
+            status.textContent = e.message || 'Unable to search verified Gurbani.';
+            const retry = document.createElement('button');
+            retry.className = 'secondary-btn';
+            retry.type = 'button';
+            retry.textContent = 'Retry';
+            retry.addEventListener('click', () => this.executeSearch(query));
+            status.appendChild(document.createElement('br'));
+            status.appendChild(document.createElement('br'));
+            status.appendChild(retry);
         }
     }
 
@@ -650,9 +754,9 @@ class UIController {
                     <i data-lucide="radio"></i>
                 </div>
                 <div class="kirtan-card-info">
-                    <h3>${station.name}</h3>
-                    <p>${station.source}</p>
-                    <div class="live-indicator"><span class="live-dot"></span> LIVE NOW</div>
+                    <h3>${this.escapeHTML(station.name)}</h3>
+                    <p>${this.escapeHTML(station.source)}</p>
+                    <div class="live-indicator"><span class="live-dot"></span> STREAM SOURCE</div>
                 </div>
                 <button class="kirtan-play-btn"><i data-lucide="play"></i></button>
             </div>

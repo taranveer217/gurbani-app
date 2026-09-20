@@ -1,6 +1,6 @@
 // sw.js - Basic Service Worker for PWA
 
-const CACHE_NAME = 'gurbani-nitnem-v1';
+const CACHE_NAME = 'gurbani-nitnem-v2';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -14,6 +14,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(ASSETS_TO_CACHE))
@@ -21,9 +22,25 @@ self.addEventListener('install', event => {
     );
 });
 
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        Promise.all([
+            self.clients.claim(),
+            caches.keys().then(keys => Promise.all(
+            keys.filter(key => key.startsWith('gurbani-nitnem-') && key !== CACHE_NAME)
+                .map(key => caches.delete(key))
+            ))
+        ])
+    );
+});
+
 self.addEventListener('fetch', event => {
     // Only cache GET requests
     if (event.request.method !== 'GET') return;
+
+    // The API layer validates freshness and owns its data cache. Never let the
+    // app-shell service worker turn a live API request into stale data.
+    if (new URL(event.request.url).hostname === 'api.gurbaninow.com') return;
 
     event.respondWith(
         caches.match(event.request)

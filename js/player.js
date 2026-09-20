@@ -24,6 +24,9 @@ class AudioPlayer {
         this.infoToggleBtn = document.getElementById('player-info-toggle');
 
         this.currentTrack = null;
+        this.pendingResumeTime = 0;
+        this.audioError = false;
+        this.activeAudioUrl = '';
         this.isPlaying = false;
         this.isLive = false;
         this.isRepeating = false;
@@ -40,12 +43,23 @@ class AudioPlayer {
         });
 
         // Audio Events
-        this.audio.addEventListener('play', () => this.updateUIState(true));
-        this.audio.addEventListener('pause', () => this.updateUIState(false));
+        this.audio.addEventListener('play', () => {
+            this.audioError = false;
+            this.updateUIState(true);
+        });
+        this.audio.addEventListener('pause', () => {
+            this.updateUIState(false);
+            if (this.currentTrack) this.saveContinueListening(this.currentTrack, this.audio.currentTime);
+        });
         this.audio.addEventListener('timeupdate', () => this.updateProgress());
         this.audio.addEventListener('loadedmetadata', () => {
+            this.audioError = false;
             if (!this.isLive) {
                 this.timeTotal.textContent = this.formatTime(this.audio.duration);
+                if (this.pendingResumeTime > 0 && this.pendingResumeTime < this.audio.duration) {
+                    this.audio.currentTime = this.pendingResumeTime;
+                }
+                this.pendingResumeTime = 0;
             } else {
                 this.timeTotal.textContent = 'LIVE';
             }
@@ -57,6 +71,12 @@ class AudioPlayer {
             } else {
                 this.updateUIState(false);
             }
+        });
+        this.audio.addEventListener('error', () => {
+            if (this.audio.src !== this.activeAudioUrl) return;
+            this.audioError = true;
+            this.updateUIState(false);
+            this.subtitleEl.textContent = 'Audio unavailable. Please try again.';
         });
 
         // Progress Bar Seek
@@ -97,15 +117,28 @@ class AudioPlayer {
     }
 
     play(trackInfo) {
-        if (!trackInfo.url) return;
+        if (!trackInfo || !trackInfo.url) {
+            this.subtitleEl.textContent = 'Audio source unavailable';
+            return;
+        }
 
+        this.audio.pause();
         this.currentTrack = trackInfo;
         this.isLive = trackInfo.isLive || false;
+        this.audioError = false;
+        this.activeAudioUrl = trackInfo.url;
+        this.pendingResumeTime = Number(trackInfo.resumeTime) || 0;
         
         this.audio.src = trackInfo.url;
         this.audio.load();
         this.audio.playbackRate = this.playbackSpeeds[this.currentSpeedIdx];
-        this.audio.play().catch(e => console.error("Playback failed", e));
+        const activeAudioUrl = trackInfo.url;
+        this.audio.play().catch(() => {
+            if (this.activeAudioUrl !== activeAudioUrl) return;
+            this.audioError = true;
+            this.updateUIState(false);
+            this.subtitleEl.textContent = 'Audio unavailable. Please try again.';
+        });
         
         this.titleEl.textContent = trackInfo.title;
         this.subtitleEl.textContent = trackInfo.subtitle || (this.isLive ? 'Live Broadcast' : 'Gurbani');
@@ -119,6 +152,11 @@ class AudioPlayer {
 
     togglePlay() {
         if (!this.currentTrack) return;
+
+        if (this.audioError) {
+            this.play({ ...this.currentTrack, resumeTime: this.audio.currentTime });
+            return;
+        }
         
         if (this.audio.paused) {
             if (this.isLive && this.audio.error) {
@@ -154,7 +192,13 @@ class AudioPlayer {
 
     saveContinueListening(track, time = 0) {
         if (this.isLive) return; // Don't save live streams
-        const state = { title: track.title, url: track.url, time: time, duration: this.audio.duration || 0 };
+        const state = {
+            paathId: track.paathId || null,
+            title: track.title,
+            url: track.url,
+            time: time,
+            duration: this.audio.duration || 0
+        };
         localStorage.setItem('continue_listening', JSON.stringify(state));
         window.UI.renderContinueListening(); // Notify UI
     }

@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize UI Data
-    window.UI.renderHomeHukamnama();
-    window.UI.renderNitnemLists(); // Updated function name
+    window.UI.renderHomeHukamnama().catch(error => console.error('Home initialization failed:', error));
+    window.UI.renderNitnemLists().catch(error => console.error('Nitnem initialization failed:', error));
     window.UI.renderKirtanStations();
     window.UI.renderContinueListening();
 
